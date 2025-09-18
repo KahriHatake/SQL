@@ -1,0 +1,75 @@
+-- REVIEW ALL DATA
+SELECT *
+FROM fortune_companies;
+
+-- #1 WHICH COMPANY OFFERS THE MOST PAID TIME OFF DAYS AND HAS THE HIGHEST TENURE AVERAGE?
+SELECT
+company_name,
+paid_time_off_days,
+avg_employee_tenure
+FROM
+fortune_companies
+ORDER BY
+paid_time_off_days DESC,
+avg_employee_tenure DESC
+LIMIT 1;
+
+-- #2 TOP 3 COMPANIES OFFER THE MOST PAID DAYS OFF AND HEALTHCARE BENEFITS?
+SELECT
+company_name, healthcare_benefits,(paid_time_off_days+maternity_leave_weeks) AS total_paid_days_off
+FROM
+fortune_companies
+WHERE
+healthcare_benefits =1
+ORDER BY
+total_paid_days_off DESC
+LIMIT 3;
+
+-- #3 PROS AND CONS: COMPANY SIZE VS. EMPLOYEE TENURE
+SELECT
+company_name, industry, employees, avg_employee_tenure,
+CASE
+WHEN employees<2000 AND avg_employee_tenure >=5 THEN 'low competition + great opportunity'
+WHEN employees<2000 THEN 'less competition'
+WHEN avg_employee_tenure >= 5 THEN 'great opportunity'
+ELSE 'consider researching further'
+END AS pros_and_cons
+FROM
+fortune_companies;
+
+-- #4 WHICH INDUSTRIES GENERATE THE HIGHEST REVENUE (INDICATER OF MARKET STRENGTH?
+SELECT 
+  industry,
+  COUNT(*) AS company_count,
+  ROUND(SUM(revenue), 0) AS industry_revenue,
+  CASE 
+    WHEN SUM(revenue) >= 2000 THEN 'Very Strong'
+    WHEN SUM(revenue) >= 1500 THEN 'Strong'
+    WHEN SUM(revenue) >= 1000 THEN 'Moderate'
+    ELSE 'Low'
+  END AS stability_rating
+FROM 
+  fortune_companies
+GROUP BY 
+  industry
+HAVING 
+  SUM(revenue) > 200
+  AND COUNT(*) >= 3
+ORDER BY 
+  industry_revenue DESC;
+
+-- #5 WHICH TECH COMPANY HAS THE HIGHEST REVENUE, OFFERS HEALTHCARE BENEFITS, AND HAS A LARGE WORKFORCE?
+-- Display healthcare benefits as 'Yes' or 'No'.
+SELECT
+company_name, industry, revenue, employees,
+CASE WHEN healthcare_benefits = 1 THEN 'Yes'
+ELSE 'No'
+END AS healthcare_benefits
+FROM
+fortune_companies
+WHERE
+industry = "Technology"
+AND healthcare_benefits = 1
+ORDER BY
+revenue DESC,
+employees DESC;
